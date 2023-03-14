@@ -1,5 +1,4 @@
 """ Basic class implementation of an array of references for FIT units
-
 The code for the init function is a bit cryptic, so I explain it here in
 detail. The instance variables holding the physical array is constructed
 using the ctypes library to create a py_object (an object that can hold
@@ -8,7 +7,6 @@ have that (length * ctypes.py_object) is a type (e.g., if length=5, it
 would be a type called py_object_Array_5). Then (length *
 ctypes.py_object)() is equivalent to the initialisation in MIPS of the
 space to hold the references.
-
 Note that while I do check the precondition in __init__ (noone else
 would), I do not check that of getitem or setitem, since that is already
 checked by self.array[index].
@@ -52,6 +50,3 @@ class ArrayR(Generic[T]):
         """
         self.array[index] = value
 
-a = ArrayR(6)
-a.__setitem__(3,2)
-print(a[3])

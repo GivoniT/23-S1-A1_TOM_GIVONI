@@ -1,4 +1,8 @@
 from __future__ import annotations
+
+from data_structures.referential_array import ArrayR
+from layer_store import LayerStore
+
 from data_structures import referential_array
 from layer_store import *
 class Grid:
@@ -27,10 +31,16 @@ class Grid:
         Should also intialise the brush size to the DEFAULT provided as a class variable.
         """
         self.brush_size = self.DEFAULT_BRUSH_SIZE
+        self.draw_style = draw_style
         self.grid = ArrayR(x)
+
         for i in range(x):
-            for j in range
-            self.grid.__setitem__(layer_store())
+            temp_array = ArrayR(y)
+            for j in range(y):
+                temp_array[j] = SetLayerStore()
+            self.grid[i] = temp_array
+
+
 
                 
 
@@ -60,4 +70,21 @@ class Grid:
         """
         Activate the special effect on all grid squares.
         """
-        raise NotImplementedError()
+        for i in range(len(self.grid)):
+            for j in range(len(self.grid[0])):
+                self.grid[i][j].special
+
+
+    def __getitem__(self, index: int) -> T:
+        """ Returns the object in position index.
+        :complexity: O(1)
+        :pre: index in between 0 and length - self.array[] checks it
+        """
+        return self.grid[index]
+
+    def __setitem__(self, index: int, value: T) -> None:
+        """ Sets the object in position index to value
+        :complexity: O(1)
+        :pre: index in between 0 and length - self.array[] checks it
+        """
+        self.grid[index] = value
