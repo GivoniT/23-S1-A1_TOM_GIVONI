@@ -1,6 +1,8 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from layer_util import Layer
+from layers import invert
+
 
 class LayerStore(ABC):
 
@@ -37,6 +39,7 @@ class LayerStore(ABC):
         """
         pass
 
+
 class SetLayerStore(LayerStore):
     """
     Set layer store. A single layer can be stored at a time (or nothing at all)
@@ -44,6 +47,8 @@ class SetLayerStore(LayerStore):
     - erase: Remove the single layer. Ignore what is currently selected.
     - special: Invert the colour output.
     """
+    special_flag: bool = False
+
     def __init__(self):
         self.current_layer = None
 
@@ -55,15 +60,28 @@ class SetLayerStore(LayerStore):
             return True
 
     def erase(self, layer: Layer) -> bool:
-        self.current_layer = None
+        if self.current_layer is None:
+            return False
+        else:
+            self.current_layer = None
+            return True
 
     def special(self):
-        pass
+        if SetLayerStore.special_flag:
+            SetLayerStore.special_flag = False
+        else:
+            SetLayerStore.special_flag = True
 
     def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
-        pass
 
-
+        if self.current_layer is None:
+            return_value = start
+        else:
+            return_value = self.current_layer.apply(start, timestamp, x, y)
+        if SetLayerStore.special_flag:
+            return invert.apply(return_value, timestamp, x, y)
+        else:
+            return return_value
 
 
 class AdditiveLayerStore(LayerStore):
@@ -75,6 +93,7 @@ class AdditiveLayerStore(LayerStore):
     """
 
     pass
+
 
 class SequenceLayerStore(LayerStore):
     """
