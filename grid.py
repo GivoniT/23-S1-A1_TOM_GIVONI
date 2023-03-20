@@ -30,19 +30,23 @@ class Grid:
 
         Should also intialise the brush size to the DEFAULT provided as a class variable.
         """
+        # Initialising self. brush size is set to the default.
         self.brush_size = self.DEFAULT_BRUSH_SIZE
         self.draw_style = draw_style
+        # Grid is created as an array of length x with x arrays of length y inside
         self.grid = ArrayR(x)
-
         for i in range(x):
             temp_array = ArrayR(y)
-            for j in range(y):
-                temp_array[j] = SetLayerStore()
+            for j in range(y): # initialising with the desired layer store class
+                if self.draw_style == Grid.DRAW_STYLE_SET:
+                    temp_array[j] = SetLayerStore()
+                elif self.draw_style == Grid.DRAW_STYLE_ADD:
+                    temp_array[j] = AdditiveLayerStore()
+                elif self.draw_style == Grid.DRAW_STYLE_SEQUENCE:
+                    temp_array[j] = SequenceLayerStore()
+                else:
+                    temp_array[j] = SetLayerStore()
             self.grid[i] = temp_array
-
-
-
-                
 
     def increase_brush_size(self):
         """
@@ -70,12 +74,16 @@ class Grid:
         """
         Activate the special effect on all grid squares.
         """
-        for i in range(len(self.grid)):
-            for j in range(len(self.grid[0])):
-                self.grid[i][j].special
+        # Switches the SetLayerStore CLASS variable special_flag between True and False
+        if SetLayerStore.special_flag:
+            SetLayerStore.special_flag = False
+        else:
+            SetLayerStore.special_flag = True
+
 
 
     def __getitem__(self, index: int) -> T:
+        #magic method allowing the array within the grid to be accessed directly. AKA for a grid k, k[x] and even k[x][y]
         """ Returns the object in position index.
         :complexity: O(1)
         :pre: index in between 0 and length - self.array[] checks it
@@ -83,6 +91,7 @@ class Grid:
         return self.grid[index]
 
     def __setitem__(self, index: int, value: T) -> None:
+        # magic method allowing the array within the grid to be accessed directly. AKA for a grid k, k[x] and even k[x][y]
         """ Sets the object in position index to value
         :complexity: O(1)
         :pre: index in between 0 and length - self.array[] checks it

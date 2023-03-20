@@ -302,7 +302,16 @@ class MyWindow(arcade.Window):
         px: x position of the brush.
         py: y position of the brush.
         """
-        pass
+        # Implementing Manhattan distance
+        d = self.grid.brush_size # d distance from px, py
+
+        # for all x values between px-d and px+d (bounded at 0 and GRID_SIZE_X)
+        for x in range(max(0, px-d), min(px+d+1, self.GRID_SIZE_X)):
+            y_paint = d - abs(px-x)
+            #paint up and down d-abs(px-x) units from height py (bounded at 0 and GRID_SIZE_Y)
+            for y in range(max(0, py-y_paint), min(py+y_paint+1, self.GRID_SIZE_Y)):
+                self.grid[x][y].add(layer)
+
 
     def on_undo(self):
         """Called when an undo is requested."""
@@ -314,7 +323,7 @@ class MyWindow(arcade.Window):
 
     def on_special(self):
         """Called when the special action is requested."""
-        pass
+        self.grid.special()
 
     def on_replay_start(self):
         """Called when the replay starting is requested."""
