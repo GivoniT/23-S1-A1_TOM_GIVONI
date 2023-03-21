@@ -37,14 +37,14 @@ class Grid:
         self.grid = ArrayR(x)
         for i in range(x):
             temp_array = ArrayR(y)
-            for j in range(y): # initialising with the desired layer store class
+            for j in range(y):  # initialising with the desired layer store class
                 if self.draw_style == Grid.DRAW_STYLE_SET:
                     temp_array[j] = SetLayerStore()
                 elif self.draw_style == Grid.DRAW_STYLE_ADD:
                     temp_array[j] = AdditiveLayerStore()
                 elif self.draw_style == Grid.DRAW_STYLE_SEQUENCE:
                     temp_array[j] = SequenceLayerStore()
-                else:
+                else:  # if none of the if statements are met, initialise with SetLayerStore
                     temp_array[j] = SetLayerStore()
             self.grid[i] = temp_array
 
@@ -74,11 +74,10 @@ class Grid:
         """
         Activate the special effect on all grid squares.
         """
-        # Switches the SetLayerStore CLASS variable special_flag between True and False
-        if SetLayerStore.special_flag:
-            SetLayerStore.special_flag = False
-        else:
-            SetLayerStore.special_flag = True
+        # triggers the special in method in all grid squares
+        for array in self.grid:
+            for layer in array:
+                layer.special()
 
 
 
