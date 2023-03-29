@@ -31,6 +31,13 @@ class Grid:
         # Initialising self. brush size is set to the default.
         self.brush_size = self.DEFAULT_BRUSH_SIZE
         self.draw_style = draw_style
+        self.initialising_grid(x, y)
+        # Setting up undo tracker
+        self.undo_track = UndoTracker()
+        self.replay_track = CircularQueue(10000)
+
+
+    def initialising_grid(self, x, y):
         # Grid is created as an array of length x with x arrays of length y inside
         self.grid = ArrayR(x)
         for i in range(x):
@@ -45,10 +52,6 @@ class Grid:
                 else:  # if none of the if statements are met, initialise with SetLayerStore
                     temp_array[j] = SetLayerStore()
             self.grid[i] = temp_array
-        # Setting up undo tracker
-        self.undo_track = UndoTracker()
-        self.redo_track = CircularQueue(10000)
-
     def increase_brush_size(self):
         """
         Increases the size of the brush by 1,
