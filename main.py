@@ -1,9 +1,12 @@
 import arcade
 import arcade.key as keys
 import math
+
+from data_structures.referential_array import ArrayR
 from grid import Grid
 from layer_util import get_layers, Layer
 from layers import lighten
+from action import PaintAction, PaintStep
 
 class MyWindow(arcade.Window):
     """ Painter Window """
@@ -287,7 +290,7 @@ class MyWindow(arcade.Window):
 
     def on_init(self):
         """Initialisation that occurs after the system initialisation."""
-        pass
+
 
     def on_reset(self):
         """Called when a window reset is requested."""
@@ -302,39 +305,57 @@ class MyWindow(arcade.Window):
         px: x position of the brush.
         py: y position of the brush.
         """
+        # PaintAction intialisation:
+        current_paint_action = PaintAction(is_special=False)
         # Implementing Manhattan distance
-        d = self.grid.brush_size # d distance from px, py
+        d = self.grid.brush_size  # d distance from px, py
 
         # for all x values between px-d and px+d (bounded at 0 and GRID_SIZE_X)
         for x in range(max(0, px-d), min(px+d+1, self.GRID_SIZE_X)):
             y_paint = d - abs(px-x)
-            #paint up and down d-abs(px-x) units from height py (bounded at 0 and GRID_SIZE_Y)
+            # Paint up and down d-abs(px-x) units from height py (bounded at 0 and GRID_SIZE_Y)
             for y in range(max(0, py-y_paint), min(py+y_paint+1, self.GRID_SIZE_Y)):
                 self.grid[x][y].add(layer)
+                current_paint_action.steps.append((PaintStep((x, y), layer)))
+        self.grid.undo_track.add_action(current_paint_action)
+        self.grid.redo_track.append((self.on_paint(Layer, px, py)))
 
 
     def on_undo(self):
         """Called when an undo is requested."""
-        pass
+        self.grid.undo_track.undo(self.grid)
+        self.grid.redo_track.append(self.on_undo)
 
     def on_redo(self):
         """Called when a redo is requested."""
-        pass
+        self.grid.undo_track.redo(self.grid)
+        self.grid.redo_track.append(self.on_redo)
 
     def on_special(self):
         """Called when the special action is requested."""
         self.grid.special()
+        self.grid.undo_track.add_action(PaintAction(None, True))
+        self.grid.redo_track.append(self.on_special)
+
 
     def on_replay_start(self):
         """Called when the replay starting is requested."""
-        pass
+        try:
+            self.grid.redo_track.serve()
+        except Exception:
+            return
+
 
     def on_replay_next_step(self) -> bool:
         """
         Called when the next step of the replay is requested.
         Returns whether the replay is finished.
         """
-        return True
+        try:
+            self.grid.redo_track.serve()
+        except Exception:
+            return True
+        return False
 
     def on_increase_brush_size(self):
         """Called when an increase to the brush size is requested."""

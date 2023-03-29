@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 from data_structures.referential_array import ArrayR
-from layer_store import LayerStore
-
-from data_structures import referential_array
+from undo import UndoTracker
 from layer_store import *
 class Grid:
     DRAW_STYLE_SET = "SET"
@@ -47,6 +45,9 @@ class Grid:
                 else:  # if none of the if statements are met, initialise with SetLayerStore
                     temp_array[j] = SetLayerStore()
             self.grid[i] = temp_array
+        # Setting up undo tracker
+        self.undo_track = UndoTracker()
+        self.redo_track = CircularQueue(10000)
 
     def increase_brush_size(self):
         """
