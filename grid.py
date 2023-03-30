@@ -43,6 +43,8 @@ class Grid:
 
     def initialising_grid(self, x, y):
         # Grid is created as an array of length x with x arrays of length y inside
+        self.x = x
+        self.y = y
         self.grid = ArrayR(x)
         for i in range(x):
             temp_array = ArrayR(y)

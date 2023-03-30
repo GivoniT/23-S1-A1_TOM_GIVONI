@@ -292,10 +292,16 @@ class MyWindow(arcade.Window):
 
     def on_init(self):
         """Initialisation that occurs after the system initialisation."""
+        if self.grid is None:
+            self.GRID_SIZE_X = MyWindow.GRID_SIZE_X
+            self.GRID_SIZE_Y = MyWindow.GRID_SIZE_Y
+        else:
+            self.GRID_SIZE_X = self.grid.x
+            self.GRID_SIZE_Y = self.grid.y
 
     def on_reset(self):
         """Called when a window reset is requested."""
-        self.grid.initialising_grid(MyWindow.GRID_SIZE_X, MyWindow.GRID_SIZE_Y)
+        pass
 
     def on_paint(self, layer: Layer, px, py):
         """

@@ -40,8 +40,12 @@ class ReplayTracker:
             return True
         else:
             if action[1]:
-                action[0].undo_apply(grid)
-                return False
+                try:
+                    action[0].undo_apply(grid)
+                except:
+                    return True
+                else:
+                    return False
             elif action[0].is_special:
                 grid.special()
                 return False
