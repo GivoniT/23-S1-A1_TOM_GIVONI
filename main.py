@@ -2,7 +2,6 @@ import arcade
 import arcade.key as keys
 import math
 
-from data_structures.referential_array import ArrayR
 from grid import Grid
 from layer_util import get_layers, Layer
 from layers import lighten
@@ -296,7 +295,7 @@ class MyWindow(arcade.Window):
 
     def on_reset(self):
         """Called when a window reset is requested."""
-        self.grid.initialising_grid(self.GRID_SIZE_X, self.GRID_SIZE_Y)
+        self.grid.initialising_grid(MyWindow.GRID_SIZE_X, MyWindow.GRID_SIZE_Y)
 
     def on_paint(self, layer: Layer, px, py):
         """
@@ -317,67 +316,40 @@ class MyWindow(arcade.Window):
             y_paint = d - abs(px - x)
             # Paint up and down d-abs(px-x) units from height py (bounded at 0 and GRID_SIZE_Y)
             for y in range(max(0, py - y_paint), min(py + y_paint + 1, self.GRID_SIZE_Y)):
-                self.grid[x][y].add(layer)
-                current_paint_action.steps.append((PaintStep((x, y), layer)))
+                if self.grid[x][y].add(layer):
+                    current_paint_action.steps.append((PaintStep((x, y), layer)))
         self.grid.undo_track.add_action(current_paint_action)
-        self.grid.replay_track.append(('on_paint', layer, px, py))
-        print('appended')
+        self.grid.replay_track.add_action(current_paint_action, False)
 
     def on_undo(self):
         """Called when an undo is requested."""
-        self.grid.undo_track.undo(self.grid)
-        self.grid.replay_track.append('on_undo')
+        action = self.grid.undo_track.undo(self.grid)
+        self.grid.replay_track.add_action(action, is_undo=True)
 
     def on_redo(self):
         """Called when a redo is requested."""
         self.grid.undo_track.redo(self.grid)
-        self.grid.replay_track.append('on_redo')
 
     def on_special(self):
         """Called when the special action is requested."""
         self.grid.special()
         self.grid.undo_track.add_action(PaintAction(None, True))
-        self.grid.replay_track.append('on_special')
-        print(self.grid.replay_track)
+        self.grid.replay_track.add_action(PaintAction(None, True), False)
 
 
     def on_replay_start(self):
         """Called when the replay starting is requested."""
         self.on_reset()
-        while not self.on_replay_next_step():
-            print(1)
+        self.grid.replay_track.start_replay()
+
 
     def on_replay_next_step(self) -> bool:
         """
         Called when the next step of the replay is requested.
         Returns whether the replay is finished.
         """
-        try:
-            action = self.grid.replay_track.serve()
-        except:
-            print(self.grid.replay_track.serve())
-            print('ey yo')
-            return True
-        else:
-            print('u good')
-            if action(0) == 'on_paint':
-                self.on_paint(action(1), action(2), action(3))
+        return self.grid.replay_track.play_next_action(self.grid)
 
-            elif action == 'on_undo':
-                self.on_undo()
-
-            elif action == 'on_redo':
-                self.on_redo()
-
-            elif action == 'on_special':
-                self.on_special()
-
-            elif action == 'on_increase_brush_size':
-                self.on_increase_brush_size()
-
-            elif action == 'on_decrease_brush_size':
-                self.on_decrease_brush_size()
-        return False
 
 
 
@@ -385,12 +357,12 @@ class MyWindow(arcade.Window):
     def on_increase_brush_size(self):
         """Called when an increase to the brush size is requested."""
         self.grid.increase_brush_size()
-        self.grid.replay_track.append('on_increase_brush_size')
+        Grid.REPLAY_STACK.append('on_increase_brush_size')
 
     def on_decrease_brush_size(self):
         """Called when a decrease to the brush size is requested."""
         self.grid.decrease_brush_size()
-        self.grid.replay_track.append('on_decrease_brush_size')
+        Grid.REPLAY_STACK.append('on_decrease_brush_size')
 
 
 def main():

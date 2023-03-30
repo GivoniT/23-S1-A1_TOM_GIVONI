@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from data_structures.referential_array import ArrayR
+from replay import ReplayTracker
 from undo import UndoTracker
 from layer_store import *
 class Grid:
@@ -16,7 +17,8 @@ class Grid:
     DEFAULT_BRUSH_SIZE = 2
     MAX_BRUSH = 5
     MIN_BRUSH = 0
-
+    REPLAY_STACK = CircularQueue(10000)
+    REPLAY_STACK_PLAYBACK = CircularQueue(10000)
     def __init__(self, draw_style, x, y) -> None:
         """
         Initialise the grid object.
@@ -34,7 +36,9 @@ class Grid:
         self.initialising_grid(x, y)
         # Setting up undo tracker
         self.undo_track = UndoTracker()
-        self.replay_track = ArrayStack(10000)
+        # Setting up redo tracker
+        self.replay_track = ReplayTracker()
+
 
 
     def initialising_grid(self, x, y):
@@ -52,6 +56,7 @@ class Grid:
                 else:  # if none of the if statements are met, initialise with SetLayerStore
                     temp_array[j] = SetLayerStore()
             self.grid[i] = temp_array
+
     def increase_brush_size(self):
         """
         Increases the size of the brush by 1,

@@ -6,7 +6,7 @@ Should be used in replay and undo features.
 
 from dataclasses import dataclass, field
 from layer_util import Layer
-from grid import Grid
+
 
 @dataclass
 class PaintStep:

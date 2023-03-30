@@ -102,7 +102,7 @@ class AdditiveLayerStore(LayerStore):
 
     def __init__(self):  # Initialising new instances with a current layer as None
         # creating a stack with sufficient capacity ( > 9*100 )
-        self.current_layers = ArrayStack(1000)
+        self.current_layers = ArrayStack(10)
 
     def add(self, layer: Layer) -> bool:
         if self.current_layers.is_full():
@@ -127,7 +127,7 @@ class AdditiveLayerStore(LayerStore):
             return False
         else:
             # extracting all layers into a temporary stack, emptying self.current_layers
-            temp_stack = ArrayStack(1000)
+            temp_stack = ArrayStack(10)
             for i in range(len(self.current_layers)):
                 layer = self.current_layers.pop()
                 temp_stack.push(layer)
@@ -147,7 +147,7 @@ class AdditiveLayerStore(LayerStore):
     '''
 
     def special(self):
-        temp_queue = CircularQueue(1000)
+        temp_queue = CircularQueue(10)
         # emptying self.current_layers into a temporary queue
         for i in range(len(self.current_layers)):
             layer = self.current_layers.pop()
@@ -159,7 +159,7 @@ class AdditiveLayerStore(LayerStore):
 
     def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
         # extracting all layers into a temporary stack, emptying self.current_layers
-        temp_stack = ArrayStack(1000)
+        temp_stack = ArrayStack(10)
         if self.current_layers.is_empty():
             return start
         for i in range(len(self.current_layers)):
