@@ -34,7 +34,7 @@ class Grid:
         self.initialising_grid(x, y)
         # Setting up undo tracker
         self.undo_track = UndoTracker()
-        self.replay_track = CircularQueue(10000)
+        self.replay_track = ArrayStack(10000)
 
 
     def initialising_grid(self, x, y):
