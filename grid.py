@@ -29,6 +29,13 @@ class Grid:
         - x, y: The dimensions of the grid.
 
         Should also intialise the brush size to the DEFAULT provided as a class variable.
+        Intialises UndoTracker and ReplayTracker
+
+        All methods written in this class have best and worst case complexity of O(1), unless stated otherwise.
+
+        Complexity:
+        Best case: O(1) where x = y = 1
+        Worst case: O(xy) as initialising_grid has complexity O(xy)
         """
         # Initialising self. brush size is set to the default.
         self.brush_size = self.DEFAULT_BRUSH_SIZE
@@ -38,24 +45,34 @@ class Grid:
         self.undo_track = UndoTracker()
         # Setting up redo tracker
         self.replay_track = ReplayTracker()
+        # These help if opening a new window
+        self.x = x
+        self.y = y
 
 
 
     def initialising_grid(self, x, y):
-        # Grid is created as an array of length x with x arrays of length y inside
-        self.x = x
-        self.y = y
+
+        """
+        Grid is created as an array of length x with x arrays of length y inside
+        All grid squares are initialised with a layer store, corresponding with self.draw_style.
+        Args:
+            x: int
+            y: int
+        Complexity:
+        O(x*y)
+        this is because there is a for loop in range y inside a for loop in range x
+        """
+
         self.grid = ArrayR(x)
         for i in range(x):
             temp_array = ArrayR(y)
             for j in range(y):  # initialising with the desired layer store class
-                if self.draw_style == Grid.DRAW_STYLE_SET:
-                    temp_array[j] = SetLayerStore()
+                if self.draw_style == Grid.DRAW_STYLE_SEQUENCE:
+                    temp_array[j] = SequenceLayerStore()
                 elif self.draw_style == Grid.DRAW_STYLE_ADD:
                     temp_array[j] = AdditiveLayerStore()
-                elif self.draw_style == Grid.DRAW_STYLE_SEQUENCE:
-                    temp_array[j] = SequenceLayerStore()
-                else:  # if none of the if statements are met, initialise with SetLayerStore
+                else:
                     temp_array[j] = SetLayerStore()
             self.grid[i] = temp_array
 
@@ -84,6 +101,16 @@ class Grid:
     def special(self):
         """
         Activate the special effect on all grid squares.
+
+        Complexity:
+        Best case: O(x*y) if all grid squares are SetLayerStore. This is because their special_complexity is O(1)
+        Where x,y = grid.x, grid.y
+
+        Worst case: O(x*y*n) if the grid is additive layer store.
+        Where x,y,n = grid.x, grid.y, number of layer in layer store instances
+        This is because additive special is O(n)
+        Note: this is worse than Sequence's special as the number of layers is at most 9
+        If the number of layers was unbounded it would also be O(n)
         """
         # triggers the special in method in all grid squares
         for array in self.grid:
@@ -93,7 +120,6 @@ class Grid:
 
 
     def __getitem__(self, index: int) -> T:
-        #magic method allowing the array within the grid to be accessed directly. AKA for a grid k, k[x] and even k[x][y]
         """ Returns the object in position index.
         :complexity: O(1)
         :pre: index in between 0 and length - self.array[] checks it
@@ -101,7 +127,6 @@ class Grid:
         return self.grid[index]
 
     def __setitem__(self, index: int, value: T) -> None:
-        # magic method allowing the array within the grid to be accessed directly. AKA for a grid k, k[x] and even k[x][y]
         """ Sets the object in position index to value
         :complexity: O(1)
         :pre: index in between 0 and length - self.array[] checks it

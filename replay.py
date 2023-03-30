@@ -3,12 +3,18 @@ from action import PaintAction
 from data_structures.queue_adt import CircularQueue
 
 class ReplayTracker:
+    """
+    Creating class variable queues for memory and play back
 
-    replay_queue = CircularQueue(10000)
-    playback_queue = CircularQueue(10000)
+    All methods in this class are O(1) best and worst case complexity unless otherwise stated
+    """
+    MAX_CAPACITY = 10000
+    replay_queue = CircularQueue(MAX_CAPACITY)
+    playback_queue = CircularQueue(MAX_CAPACITY)
     def start_replay(self) -> None:
         """
         Called whenever we should stop taking actions, and start playing them back.
+        Transfers the replay action to the playback_queue. Resets replay_queue.
 
         Useful if you have any setup to do before `play_next_action` should be called.
         """
@@ -16,7 +22,11 @@ class ReplayTracker:
         self.reset_replay_queue()
 
     def reset_replay_queue(self):
+        """
+        Resets the class replay_queue
+        """
         ReplayTracker.replay_queue = CircularQueue(10000)
+
     def add_action(self, action: PaintAction, is_undo: bool=False) -> None:
         """
         Adds an action to the replay.
@@ -29,21 +39,28 @@ class ReplayTracker:
     def play_next_action(self, grid: Grid) -> bool:
         """
         Plays the next replay action on the grid.
+        This function attempts to retrieve an action.
+        If found, deciphers if he action is undo, special or draw, then executes.
+
         Returns a boolean.
             - If there were no more actions to play, and so nothing happened, return True.
             - Otherwise, return False.
+
+        Complexity:
+        Best case  O(1): the replay tracker queue was empty
+        Worst case O(xyn) when special is called. See Grid.special for details.
         """
         try:
             action = ReplayTracker.playback_queue.serve()
-        except:
+        except: # if the queue is empty
             self.reset_replay_queue()
             return True
         else:
-            if action[1]:
-                try:
+            if action[1]: # checks if is_undo == True
+                try: # try except block to prevent issues with undo on empty screen
                     action[0].undo_apply(grid)
                 except:
-                    return True
+                    pass
                 else:
                     return False
             elif action[0].is_special:

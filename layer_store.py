@@ -145,7 +145,7 @@ class AdditiveLayerStore(LayerStore):
 
     All methods written in this class have best and worst case complexity of O(1), unless stated otherwise
     """
-    MAX_CAPACITY = 100*9  # as per requirement, 'capacity of the store at least 100 times the number of layers [9].'
+    MAX_CAPACITY = 100 * len(get_layers())-1  # 'capacity of the store at least 100 times the number of layers.'
 
     def __init__(self):  # Initialising new instances with a current layer as None
         """
@@ -195,6 +195,7 @@ class AdditiveLayerStore(LayerStore):
             Complexity:
             Best case O(1): self.current_layers is empty
             Worst case O(n) where n is the length of self.current_layers
+            this is due to the 2 for loops that iterate in range of n
         """
         if self.current_layers.is_empty():
             return
@@ -225,6 +226,7 @@ class AdditiveLayerStore(LayerStore):
         Complexity:
             Best case O(1): self.current_layers is empty
             Worst case O(n) where n is the length of self.current_layers
+            This is due to the for loop that iterates in range of n
         """
         # initialising return value
         return_value = start
@@ -272,6 +274,12 @@ class SequenceLayerStore(LayerStore):
             Returns:
             True if successful
             False if unsuccessful
+
+            Complexity:
+            Best case O(1), where list is full
+            Worst case O(n) where n is the number of layers already in the layer store
+            This is because adding an element to a sorted list requires searching for position and shuffling.
+            Both the search and shuffle are worst case O(n).
         """
         list_layer_name = ListItem(layer, layer.name)  # List item with name key for layer
 
@@ -287,8 +295,24 @@ class SequenceLayerStore(LayerStore):
             return True
 
     def erase(self, layer: Layer) -> bool:
+        """
+            Turns off layer in layer store instance
+
+            Args:
+            - layer: object of type Layer
+
+            Returns:
+            True if successful
+            False if unsuccessful
+
+            Complexity:
+            Best case O(1), where list is empty, or the layer is not in the list
+            Worst case O(n) where n is the number of layers already in the layer store
+            This is because removing an element from a sorted list requires searching for position and shuffling.
+            Both the search and shuffle are worst case O(n).
+        """
         # checking the that there are layers to delete
-        if self.current_layers_name.is_empty() or layer.index not in self.current_layers_index:
+        if self.current_layers_name.is_empty() or (layer.index+1) not in self.current_layers_index:
             return False
         else:
             list_layer_name = ListItem(layer, layer.name)  # layer item (name) to be deleted
@@ -299,6 +323,15 @@ class SequenceLayerStore(LayerStore):
             return True
 
     def special(self):
+        """
+            Turns off layer in (smaller) median position, when sorted by name.
+
+            Complexity:
+            Best case O(1), where list is empty
+            Worst case O(n) where n is the number of layers already in the layer store
+            This is because removing an element to a sorted list requires searching for position and shuffling.
+            Both the search and shuffle are worst case O(n).
+        """
         # checking the that there are layers to delete
         if self.current_layers_name.is_empty():
             return
@@ -312,6 +345,23 @@ class SequenceLayerStore(LayerStore):
         self.current_layers_index.remove(layer_item_index+1)
 
     def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
+        """
+        returns the color from a particular layer store instance.
+
+        Args:
+            - start: tuple of three integers
+            - timestamp
+            - x: integer
+            - y: integer
+
+        Returns:
+            tuple of three integers, representing the resulting colour
+
+        Complexity:
+            Best case O(1): self.current_layers is empty
+            Worst case O(n) where n is the number of layers
+            This is due to the for loop that runs in range self.NUMBER_OF_LAYERS
+        """
         # returning starting color if grid is empty
         if self.current_layers_index.is_empty():
             return start

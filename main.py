@@ -114,7 +114,7 @@ class MyWindow(arcade.Window):
             ystart = self.SCREEN_HEIGHT - (i // 2) * self.LAYER_BUTTON_SIZE
             yend = self.SCREEN_HEIGHT - (i // 2 + 1) * self.LAYER_BUTTON_SIZE
             bg = lighten.apply(layer.bg or self.BG[:], 0, 0, 0) if self.selected_layer_index == i else (
-                        layer.bg or self.BG[:])
+                    layer.bg or self.BG[:])
             if not self.enable_ui:
                 bg = lighten.apply(bg, 0, 0, 0)
             arcade.draw_lrtb_rectangle_filled(xstart, xend, ystart, yend, bg)
@@ -291,7 +291,12 @@ class MyWindow(arcade.Window):
     # STUDENT PART
 
     def on_init(self):
-        """Initialisation that occurs after the system initialisation."""
+        """
+        Initialisation that occurs after the system initialisation.
+        Initialises grid X and Y sizes
+        All methods written in this class have best and worst case complexity of O(1), unless stated otherwise.
+        """
+
         if self.grid is None:
             self.GRID_SIZE_X = MyWindow.GRID_SIZE_X
             self.GRID_SIZE_Y = MyWindow.GRID_SIZE_Y
@@ -300,17 +305,38 @@ class MyWindow(arcade.Window):
             self.GRID_SIZE_Y = self.grid.y
 
     def on_reset(self):
-        """Called when a window reset is requested."""
+        """
+        Called when a window reset is requested.
+        Not necessary for any functionality. Grid is created a new in scaffolding part when calling on-reset.
+        """
         pass
 
     def on_paint(self, layer: Layer, px, py):
         """
         Called when a grid square is clicked on, which should trigger painting in the vicinity.
         Vicinity squares outside of the range [0, GRID_SIZE_X) or [0, GRID_SIZE_Y) can be safely ignored.
+        Feeds Undo and Replay trackers
 
+        Args:
         layer: The layer being applied.
         px: x position of the brush.
         py: y position of the brush.
+
+        Complexity:
+        d = brush size
+        Best case O(1): where d = 1 and draw_style is set layer store
+        Worst case O(d^2 * n): where n is the number of layers in layer store and draw style is sequential.
+        This is because self.grid[x][y].add(layer) has a worst case complexity of O(n) when using sequential.
+        The d^2 stems from the number of point squares being filled.
+        For           d = 1, 2, 3, 4....
+        num of squares = 5, 13, 25, 41
+                         +8  +12  +16
+        The formula for number of squares is 1 + 4 + 8 + 12 +...
+        = 1 + 4(1+2+3+4...)
+        = 1+4*d*(d+1)/2
+        = 1+2d(d+1)
+        = 2d^2 +2d +1
+        so O(d^2)
         """
         # PaintAction intialisation:
         current_paint_action = PaintAction(is_special=False)
@@ -324,41 +350,65 @@ class MyWindow(arcade.Window):
             for y in range(max(0, py - y_paint), min(py + y_paint + 1, self.GRID_SIZE_Y)):
                 if self.grid[x][y].add(layer):
                     current_paint_action.steps.append((PaintStep((x, y), layer)))
+        # Feeding the trackers
         self.grid.undo_track.add_action(current_paint_action)
         self.grid.replay_track.add_action(current_paint_action, False)
 
     def on_undo(self):
-        """Called when an undo is requested."""
+        """
+        Called when an undo is requested.
+        Feeds the replay tracker
+
+        Complexity:
+        Best Case O(1) where there are no actions to undo
+        Worse Case O(n) where n is the number of steps in the PaintAction to undo (see UndoTracker.undo)
+        """
         action = self.grid.undo_track.undo(self.grid)
+        # Feeding the replay tracker
         self.grid.replay_track.add_action(action, is_undo=True)
 
     def on_redo(self):
-        """Called when a redo is requested."""
+        """
+        Called when a redo is requested.
+                Complexity:
+        Best Case O(1) where there are no actions to redo
+        Worse Case O(n) where n is the number of steps in the PaintAction to redo (see UndoTracker.redo)
+        """
         self.grid.undo_track.redo(self.grid)
 
     def on_special(self):
-        """Called when the special action is requested."""
+        """
+        Called when the special action is requested.
+        Calls special in grid
+        feeds the trackers
+
+        Complexity:
+        O(1): best
+        O(x*y*n) : worst
+        See Grid.special for details
+
+        """
         self.grid.special()
         self.grid.undo_track.add_action(PaintAction(None, True))
         self.grid.replay_track.add_action(PaintAction(None, True), False)
 
-
     def on_replay_start(self):
-        """Called when the replay starting is requested."""
-        self.on_reset()
+        """
+        Called when the replay starting is requested.
+        Begins the replay
+        """
+        self.on_reset() # note this empty function is being called as when replay starts reset should be called.
         self.grid.replay_track.start_replay()
-
 
     def on_replay_next_step(self) -> bool:
         """
         Called when the next step of the replay is requested.
         Returns whether the replay is finished.
+                Complexity:
+        Best case  O(1): the replay tracker queue was empty
+        Worst case O(xyn) when special is called. See Grid.special for details.
         """
         return self.grid.replay_track.play_next_action(self.grid)
-
-
-
-
 
     def on_increase_brush_size(self):
         """Called when an increase to the brush size is requested."""
