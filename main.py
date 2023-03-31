@@ -304,14 +304,14 @@ class MyWindow(arcade.Window):
             self.GRID_SIZE_X = self.grid.x
             self.GRID_SIZE_Y = self.grid.y
 
-    def on_reset(self):
+    def on_reset(self) -> None:
         """
         Called when a window reset is requested.
-        Not necessary for any functionality. Grid is created a new in scaffolding part when calling on-reset.
+        Resets the replay tracker when switching between draw styles.
         """
-        pass
+        self.grid.replay_track.reset_replay_queue()
 
-    def on_paint(self, layer: Layer, px, py):
+    def on_paint(self, layer: Layer, px: int, py: int) -> None:
         """
         Called when a grid square is clicked on, which should trigger painting in the vicinity.
         Vicinity squares outside of the range [0, GRID_SIZE_X) or [0, GRID_SIZE_Y) can be safely ignored.
@@ -354,7 +354,7 @@ class MyWindow(arcade.Window):
         self.grid.undo_track.add_action(current_paint_action)
         self.grid.replay_track.add_action(current_paint_action, False)
 
-    def on_undo(self):
+    def on_undo(self) -> None:
         """
         Called when an undo is requested.
         Feeds the replay tracker
@@ -367,7 +367,7 @@ class MyWindow(arcade.Window):
         # Feeding the replay tracker
         self.grid.replay_track.add_action(action, is_undo=True)
 
-    def on_redo(self):
+    def on_redo(self) -> None:
         """
         Called when a redo is requested.
                 Complexity:
@@ -376,7 +376,7 @@ class MyWindow(arcade.Window):
         """
         self.grid.undo_track.redo(self.grid)
 
-    def on_special(self):
+    def on_special(self) -> None:
         """
         Called when the special action is requested.
         Calls special in grid
@@ -392,13 +392,13 @@ class MyWindow(arcade.Window):
         self.grid.undo_track.add_action(PaintAction(None, True))
         self.grid.replay_track.add_action(PaintAction(None, True), False)
 
-    def on_replay_start(self):
+    def on_replay_start(self) -> None:
         """
         Called when the replay starting is requested.
         Begins the replay
         """
-        self.on_reset() # note this empty function is being called as when replay starts reset should be called.
         self.grid.replay_track.start_replay()
+        self.on_reset()
 
     def on_replay_next_step(self) -> bool:
         """
@@ -410,12 +410,12 @@ class MyWindow(arcade.Window):
         """
         return self.grid.replay_track.play_next_action(self.grid)
 
-    def on_increase_brush_size(self):
+    def on_increase_brush_size(self) -> None:
         """Called when an increase to the brush size is requested."""
         self.grid.increase_brush_size()
         Grid.REPLAY_STACK.append('on_increase_brush_size')
 
-    def on_decrease_brush_size(self):
+    def on_decrease_brush_size(self) -> None:
         """Called when a decrease to the brush size is requested."""
         self.grid.decrease_brush_size()
         Grid.REPLAY_STACK.append('on_decrease_brush_size')

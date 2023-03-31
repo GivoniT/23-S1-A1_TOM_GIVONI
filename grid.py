@@ -17,8 +17,9 @@ class Grid:
     DEFAULT_BRUSH_SIZE = 2
     MAX_BRUSH = 5
     MIN_BRUSH = 0
-    REPLAY_STACK = CircularQueue(10000)
-    REPLAY_STACK_PLAYBACK = CircularQueue(10000)
+    MAX_OPERATIONS = 10000  # as specified in assignment brief
+    REPLAY_STACK = CircularQueue(MAX_OPERATIONS)
+    REPLAY_STACK_PLAYBACK = CircularQueue(MAX_OPERATIONS)
     def __init__(self, draw_style, x, y) -> None:
         """
         Initialise the grid object.
@@ -51,7 +52,7 @@ class Grid:
 
 
 
-    def initialising_grid(self, x, y):
+    def initialising_grid(self, x: int, y: int) -> None:
 
         """
         Grid is created as an array of length x with x arrays of length y inside
@@ -76,7 +77,7 @@ class Grid:
                     temp_array[j] = SetLayerStore()
             self.grid[i] = temp_array
 
-    def increase_brush_size(self):
+    def increase_brush_size(self) -> None:
         """
         Increases the size of the brush by 1,
         if the brush size is already MAX_BRUSH,
@@ -87,7 +88,7 @@ class Grid:
         else:
             self.brush_size += 1
 
-    def decrease_brush_size(self):
+    def decrease_brush_size(self) -> None:
         """
         Decreases the size of the brush by 1,
         if the brush size is already MIN_BRUSH,
@@ -98,7 +99,7 @@ class Grid:
         else:
             self.brush_size -= 1
 
-    def special(self):
+    def special(self) -> None:
         """
         Activate the special effect on all grid squares.
 

@@ -101,7 +101,7 @@ class SetLayerStore(LayerStore):
             self.current_layer = None
             return True
 
-    def special(self):
+    def special(self) -> None:
         """
         Switches the INSTANCE variable flag between True and False
         No return value
@@ -112,13 +112,13 @@ class SetLayerStore(LayerStore):
         else:
             self.special_flag = True
 
-    def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
+    def get_color(self, start: tuple[int, int, int], timestamp: int, x: int, y: int) -> tuple[int, int, int]:
         """
         returns the color from a particular layer. Taking special into consideration.
 
         Args:
             - start: tuple of three integers
-            - timestamp
+            - timestamp: integer
             - x: integer
             - y: integer
 
@@ -145,9 +145,9 @@ class AdditiveLayerStore(LayerStore):
 
     All methods written in this class have best and worst case complexity of O(1), unless stated otherwise
     """
-    MAX_CAPACITY = 100 * len(get_layers())-1  # 'capacity of the store at least 100 times the number of layers.'
+    MAX_CAPACITY = 100 * (len(get_layers())-1)  # 'capacity of the store at least 100 times the number of layers.'
 
-    def __init__(self):  # Initialising new instances with a current layer as None
+    def __init__(self) -> None:  # Initialising new instances with a current layer as None
         """
         Creates class instance, with self.current_layers as a Queue of length MAX_CAPACITY
         """
@@ -188,7 +188,7 @@ class AdditiveLayerStore(LayerStore):
             self.current_layers.serve()
             return True
 
-    def special(self):
+    def special(self) -> None:
         """
             Reverses the order of the layers
 
@@ -210,13 +210,13 @@ class AdditiveLayerStore(LayerStore):
             layer = temp_stack.pop()
             self.current_layers.append(layer)
 
-    def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
+    def get_color(self, start: tuple[int, int, int], timestamp: int, x: int, y: int) -> tuple[int, int, int]:
         """
         returns the color from a particular layer store instance.
 
         Args:
             - start: tuple of three integers
-            - timestamp
+            - timestamp: integer
             - x: integer
             - y: integer
 
@@ -256,7 +256,7 @@ class SequenceLayerStore(LayerStore):
     MAX_CAPACITY = 1000  # as required in assignment instructions
     NUMBER_OF_LAYERS = len(get_layers())-1
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Each class instance holds an array sorted list to sort layers lexicographically by name and
         a bitvector set to hold the layers by index
@@ -322,7 +322,7 @@ class SequenceLayerStore(LayerStore):
             self.current_layers_index.remove(list_layer_index+1)
             return True
 
-    def special(self):
+    def special(self) -> None:
         """
             Turns off layer in (smaller) median position, when sorted by name.
 
@@ -344,13 +344,13 @@ class SequenceLayerStore(LayerStore):
         # removing the layer item from the layer (index) Bset
         self.current_layers_index.remove(layer_item_index+1)
 
-    def get_color(self, start, timestamp, x, y) -> tuple[int, int, int]:
+    def get_color(self, start: tuple[int, int, int], timestamp: int, x: int, y: int) -> tuple[int, int, int]:
         """
         returns the color from a particular layer store instance.
 
         Args:
             - start: tuple of three integers
-            - timestamp
+            - timestamp: integer
             - x: integer
             - y: integer
 

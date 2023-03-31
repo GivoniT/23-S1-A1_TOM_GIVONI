@@ -6,7 +6,7 @@ from data_structures.stack_adt import ArrayStack
 class UndoTracker:
     MAX_OPERATIONS = 10000
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialises instance with two stacks, one for undo and one for redo
         All methods of this class are O(1) best and worst case unless specified otherwise

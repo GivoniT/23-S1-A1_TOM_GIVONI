@@ -21,7 +21,7 @@ class ReplayTracker:
         ReplayTracker.playback_queue = ReplayTracker.replay_queue
         self.reset_replay_queue()
 
-    def reset_replay_queue(self):
+    def reset_replay_queue(self) -> None:
         """
         Resets the class replay_queue
         """
